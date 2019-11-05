@@ -4,10 +4,13 @@ import * as courseActions from "../../redux/actions/courseActions";
 import * as authorActions from "../../redux/actions/authorActions";
 import PropTypes from "prop-types";
 import { bindActionCreators } from "redux";
-import CourseList from "./CourseList"
+import CourseList from "./CourseList";
 import { Redirect } from "react-router-dom";
 
 class CoursesPage extends React.Component {
+  state = {
+    redirectToAddCoursePage: false
+  };
 
   componentDidMount() {
     const { courses, authors, actions } = this.props;
@@ -23,38 +26,47 @@ class CoursesPage extends React.Component {
         alert("Loading authors failed " + error);
       });
     }
-  
   }
+
   render() {
-    
     return (
       <>
+        {this.state.redirectToAddCoursePage && <Redirect to="/course" />}
+
         <h2>Courses</h2>
+
+        <button
+          style={{ marginBottom: 20 }}
+          className="btn btn-primary add-course"
+          onClick={() => this.setState({ redirectToAddCoursePage: true })}
+        >
+          Add Course
+        </button>
+
         <CourseList courses={this.props.courses} />
       </>
     );
   }
 }
 
-CoursesPage.PropTypes = {
+CoursesPage.propTypes = {
   authors: PropTypes.array.isRequired,
   courses: PropTypes.array.isRequired,
   actions: PropTypes.object.isRequired
 };
 
-//export default CoursesPage;
-
+/* Redux Mapping Functions */
 function mapStateToProps(state) {
   return {
-    courses: 
-      state.authors.length === 0 
-      ? [] 
-      : state.courses.map(course => {
-        return {
-          ...course,
-          authorName: state.authors.find(a => a.id === course.authorId).name
-        };
-    }),
+    courses:
+      state.authors.length === 0
+        ? []
+        : state.courses.map(course => {
+            return {
+              ...course,
+              authorName: state.authors.find(a => a.id === course.authorId).name
+            };
+          }),
     authors: state.authors
   };
 }
@@ -69,7 +81,10 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
+// Connect component to Redux
 export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(CoursesPage);
+
+//export default CoursesPage;
